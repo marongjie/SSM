@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace指用户自定义的命名空间。 -->
+<mapper namespace="org.fkit.mapper.UserMapper">
+	<!-- 
+		# 插入数据的存储过程
+		DROP PROCEDURE IF EXISTS insert_user;
+		DELIMITER //
+		CREATE PROCEDURE insert_user
+		(OUT v_id INTEGER,IN v_name VARCHAR(18),IN v_sex VARCHAR(19),IN v_age INTEGER)
+		BEGIN
+		# 执行insert操作，values中的值是传入的参数
+		INSERT INTO tb_user(NAME,sex,age) VALUES(v_name,v_sex,v_age);
+		# 将insert成功自动生成的主键id值设置到变量v_id中返回
+		SET v_id = LAST_INSERT_ID();
+		END
+		//
+	 -->
+  <insert id="saveUser" parameterType="org.fkit.domain.User" statementType="CALLABLE">
+  	{call insert_user(
+  	#{id,mode=OUT,jdbcType=INTEGER},#{name,mode=IN},#{sex,mode=IN},#{age,mode=IN}
+  	)}
+  </insert>
+  
+  <!-- 
+  	# 查询所有数据的存储过程
+  	DROP PROCEDURE IF EXISTS select_user;
+	DELIMITER //
+	CREATE PROCEDURE select_user()
+	BEGIN
+	SELECT id,NAME,sex,age FROM tb_user;
+	END
+	//
+   -->
+   <select id="selectUser" resultType="org.fkit.domain.User" statementType="CALLABLE">
+  	{call select_user()}
+  </select>
+  
+  <!-- 
+  	# 根据id查询数据的存储过程
+  	DROP PROCEDURE IF EXISTS select_user_by_id;
+	DELIMITER //
+	CREATE PROCEDURE select_user_by_id(IN v_id INTEGER)
+	BEGIN
+	SELECT id,NAME,sex,age FROM tb_user WHERE id = v_id;
+	END
+	//
+   -->
+    <select id="selectUserById" parameterType="int" resultType="org.fkit.domain.User" statementType="CALLABLE">
+  	{call select_user_by_id(#{id,mode=IN})}
+  </select>
+  
+  <!-- 
+  	# 修改数据的存储过程
+  	DROP PROCEDURE IF EXISTS update_user;
+	DELIMITER //
+	CREATE PROCEDURE update_user
+	(IN v_id INTEGER,IN v_name VARCHAR(18),IN v_sex VARCHAR(19),IN v_age INTEGER)
+	BEGIN
+	UPDATE tb_user SET NAME = v_name,sex = v_sex,age = v_age
+	WHERE id = v_id;
+	END
+	//
+   -->
+   <update id="modifyUser" parameterType="org.fkit.domain.User" statementType="CALLABLE">
+  	{call update_user(
+  	#{id,mode=IN},#{name,mode=IN},#{sex,mode=IN},#{age,mode=IN}
+  	)}
+  </update>
+  
+  <!-- 
+  	# 删除数据的存储过程
+  	DROP PROCEDURE IF EXISTS delete_user_by_id;
+	DELIMITER //
+	CREATE PROCEDURE delete_user_by_id(IN v_id INTEGER)
+	BEGIN
+	DELETE FROM tb_user WHERE id = v_id;
+	END
+	//
+   -->
+   <delete id="removeUser" parameterType="org.fkit.domain.User" statementType="CALLABLE">
+  	{call delete_user_by_id(#{id,mode=IN})}
+  </delete>
+  
+</mapper>
